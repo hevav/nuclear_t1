@@ -13,11 +13,20 @@ type AggSumWeight struct {
 	SumLimit          uint64
 }
 
-func (as AggSum) GetScore(limitsum, limitabs uint64, weightsum, weightabs, weightcnt float64) float64 {
+func (as *AggSum) GetScore(asw AggSumWeight) float64 {
+	weightedSum := float64(as.Sum)*asw.SumWeight + float64(as.AbsoluteSum)*asw.AbsoluteSumWeight + float64(as.Count)*asw.CountWeight
+	riskScore := 1 - (weightedSum / float64(asw.SumLimit))
 
+	if riskScore < 0 {
+		riskScore = 0
+	} else if riskScore > 1 {
+		riskScore = 1
+	}
+
+	return riskScore
 }
 
-func (as AggSum) Add(amount int64) {
+func (as *AggSum) Add(amount int64) {
 	as.Sum += uint64(amount)
 	if amount > 0 {
 		as.AbsoluteSum += uint64(amount)

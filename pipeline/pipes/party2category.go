@@ -1,6 +1,8 @@
 package pipes
 
 import (
+	"hackathon/config"
+	"hackathon/db"
 	"hackathon/types"
 )
 
@@ -14,5 +16,5 @@ func (Party2Category) Proceed(tx *types.Transaction) (float64, error) {
 
 	vector.AggSum.Add(tx.Amount)
 
-	return vector.AggSum.GetScore(), db.UpdateCategoryVector(vector)
+	return vector.AggSum.GetScore(config.Weights.AggSumWeights.Party2Category[tx.Category]), db.UpdateCategoryVector(&vector)
 }

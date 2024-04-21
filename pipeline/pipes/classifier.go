@@ -1,6 +1,7 @@
 package pipes
 
 import (
+	"hackathon/db"
 	"hackathon/types"
 	"strings"
 )
@@ -17,6 +18,7 @@ var classifierMap = map[string]types.TransactionCategory{
 	"бистро":   types.TransactionCategoryRestaurants,
 	"комисс":   types.TransactionCategoryCommission,
 	"сбор":     types.TransactionCategoryCommission,
+	"налог":    types.TransactionCategoryCommission,
 	"услуг":    types.TransactionCategoryUnclassifiedServices,
 }
 
@@ -32,7 +34,9 @@ func (Classifier) Proceed(tx *types.Transaction) (float64, error) {
 				}
 			}
 
-			tx.Category = market.Category
+			if market.ID != 0 {
+				tx.Category = market.Category
+			}
 		}
 	}
 

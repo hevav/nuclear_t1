@@ -1,30 +1,36 @@
 package pipes
 
 import (
+	"hackathon/config"
 	"hackathon/db"
 	"hackathon/types"
 	"math"
 )
 
 func UpdateAggSum(tx *types.Transaction) (*types.TransactionPartyGeoZoneVector, error) {
-	txPartyGeoZoneVectors := db.GetGeoZonesByParty(tx.FromID)
+	txPartyGeoZoneVectors, err := db.GetGeoZonesByParty(tx.FromID)
+	if err != nil {
+		return nil, err
+	}
 	var nearestVector *types.TransactionPartyGeoZoneVector
 	var minDistance float64 = math.MaxFloat64
 	for _, vector := range txPartyGeoZoneVectors {
 		distance := haversineDistance(tx.GeoLat, tx.GeoLon, vector.GeoLat, vector.GeoLon)
 		if distance < minDistance && distance <= float64(vector.GeoRadius) {
 			minDistance = distance
-			nearestVector = vector
+			nearestVector = &vector
 		}
 	}
+
+	// TODO: вообще если несколько геозон, то надо их объединять вместе, это не сложно, но случается очень редко
 
 	if nearestVector != nil {
 		points, err := db.GetGeoZonePoints(nearestVector.ID)
 		if err != nil {
 			return nil, err
 		}
-		append(points, tx.GeoLat, tx.GeoLon)
-		newLat, newLon := meanPoint(points)
+
+		newLat, newLon := meanPoint(append(points, tx.GeoLat, tx.GeoLon))
 		nearestVector.GeoRadius += uint64(haversineDistance(nearestVector.GeoLat, nearestVector.GeoLon, newLat, newLon))
 		nearestVector.GeoLat = newLat
 		nearestVector.GeoLat = newLon
@@ -37,7 +43,7 @@ func UpdateAggSum(tx *types.Transaction) (*types.TransactionPartyGeoZoneVector, 
 		TransactionPartyID: tx.FromID,
 		GeoLat:             tx.GeoLat,
 		GeoLon:             tx.GeoLon,
-		GeoRadius:          types.Config.DefaultGeoZoneRadiusMeters,
+		GeoRadius:          config.Settings.Specific.GeoZone.DefaultRadiusMeters,
 		AggSum: types.AggSum{
 			Sum:         uint64(tx.Amount),
 			AbsoluteSum: uint64(math.Abs(float64(tx.Amount))),
@@ -96,5 +102,5 @@ func (Geozone) Proceed(tx *types.Transaction) (float64, error) {
 		return 0, err
 	}
 
-	return geozone.AggSum.GetScore(), nil
+	return geozone.AggSum.GetScore(config.Weights.AggSumWeights.GeoZone), nil
 }

@@ -29,6 +29,7 @@ type Transaction struct {
 	PurposeText string              `db:"purpose_text"`
 	Category    TransactionCategory `db:"category"`
 	InterBank   bool
+	Suspiscious bool
 }
 
 type Profile struct {
@@ -61,8 +62,8 @@ type TransactionParty struct {
 }
 
 type PartyAffiliates struct {
-	FromID uint64 `db:"from_id"`
-	ToID   uint64 `db:"to_id"`
-	Score  uint64 `db:"score"`
+	FromID uint64  `db:"from_id"`
+	ToID   uint64  `db:"to_id"`
+	Score  float64 `db:"score"`
 	AggSum
 }

@@ -7,7 +7,7 @@ var Weights WeightsType
 type WeightsType struct {
 	PipelineWeight map[string]float64
 	AggSumWeights  struct {
-		Party2Category map[string]types.AggSumWeight
+		Party2Category map[types.TransactionCategory]types.AggSumWeight
 		Party2Party    types.AggSumWeight
 		GeoZone        types.AggSumWeight
 		FastOps        struct {
@@ -19,10 +19,10 @@ type WeightsType struct {
 	}
 	TimeWeights struct {
 		FastOps struct {
-			TransferTransfer float64
-			TransferWithdraw float64
-			CreditTransfer   float64
-			CreditWithdraw   float64
+			TransferTransfer uint32
+			TransferWithdraw uint32
+			CreditTransfer   uint32
+			CreditWithdraw   uint32
 		}
 	}
 }

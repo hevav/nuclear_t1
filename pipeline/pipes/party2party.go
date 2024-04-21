@@ -1,6 +1,8 @@
 package pipes
 
 import (
+	"hackathon/config"
+	"hackathon/db"
 	"hackathon/types"
 )
 
@@ -14,5 +16,5 @@ func (Party2Party) Proceed(tx *types.Transaction) (float64, error) {
 
 	affiliate.AggSum.Add(tx.Amount)
 
-	return affiliate.AggSum.GetScore(), db.UpdatePartyAffiliate(affiliate)
+	return affiliate.AggSum.GetScore(config.Weights.AggSumWeights.Party2Party) * affiliate.Score, db.UpdatePartyAffiliate(&affiliate)
 }

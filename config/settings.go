@@ -1,13 +1,12 @@
 package config
 
 import (
-	"hackathon/db"
-	"hackathon/queue"
+	"hackathon/types"
 )
 
-var Config ConfigType
+var Settings SettingsType
 
-type ConfigType struct {
+type SettingsType struct {
 	Specific struct {
 		GeoZone struct {
 			DefaultRadiusMeters uint64
@@ -18,14 +17,14 @@ type ConfigType struct {
 	}
 	Integration struct {
 		LocalDatabase struct {
-			Type     db.DatabaseType
+			Type     types.DatabaseType
 			Host     string
 			Database string
 			Username string
 			Password string
 		}
 		BankDatabase struct {
-			Type     db.DatabaseType
+			Type     types.DatabaseType
 			Host     string
 			Database string
 			Username string
@@ -33,7 +32,7 @@ type ConfigType struct {
 		}
 		Queue struct {
 			Enabled bool
-			Type    queue.QueueType
+			Type    types.QueueType
 			Host    string
 			Topic   string
 		}

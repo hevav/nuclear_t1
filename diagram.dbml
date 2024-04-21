@@ -1,0 +1,116 @@
+Enum MarketType {
+  Offline
+  Online
+}
+
+Enum TransactionType {
+  Transfer
+  Credit
+  Purchase
+  CashWithdraw
+}
+
+Enum TransactionFlag {
+  Normal
+  Return
+}
+
+Enum ProfileType {
+  Private
+  Organization 
+}
+
+Enum TransactionCategory {
+  OnlineEntertainment
+  OfflineEntertainment
+  Restaraunts
+  Travel
+  Goods
+  OnlineServices
+  OfflineServices
+  Commission
+  Credit
+  Transfer
+  Cash
+}
+
+Table Market {
+  ID uint64 [primary key]
+  Name string
+  Type MarketType
+}
+
+Table Transaction {
+  ID uint64 [primary key]
+  Timestamp timestamp
+  Amount    int64
+  FromID  uint64
+  ToID  uint64
+  Type TransactionType
+  Flag TransactionFlag
+  GeoLat float 
+  GeoLon float
+  GeoZoneID uint64
+  PurposeText string
+  Category TransactionCategory
+}
+
+Table Profile {
+  ID uint64 [primary key]
+  Name string
+  Type ProfileType
+}
+
+Table TransactionPartyGeoZoneVector {
+  ID uint64
+  TransactionPartyID uint64
+  GeoLat float 
+  GeoLon float
+  GeoRadius uint64
+  Sum uint64
+  AbsoluteSum uint64
+  Count uint64
+}
+
+Enum PartyType {
+  Profile
+  Market
+}
+
+Table TransactionPartyCategoryVector {
+  TransactionPartyID uint64
+  VectorCategory TransactionCategory 
+  Sum uint64
+  AbsoluteSum uint64
+  Count uint64
+}
+
+Table TransactionParty {
+  Type PartyType
+  ID uint64
+  PartyID uint64
+  Sum uint64
+  AbsoluteSum uint64
+  Count uint64
+}
+
+Table PartyAffiliates {
+  FromID  uint64
+  ToID  uint64
+  Sum uint64
+  AbsoluteSum uint64
+  Count uint64
+  Score uint64 [note: "Попытка определить связь родственник-родственник, связь сотрудник-организация"]
+}
+
+Ref: Profile.ID > TransactionParty.PartyID
+Ref: Market.ID > TransactionParty.PartyID
+Ref: TransactionParty.ID > TransactionPartyCategoryVector.TransactionPartyID
+Ref: TransactionParty.ID > TransactionPartyGeoZoneVector.TransactionPartyID
+Ref: Transaction.GeoZoneID > TransactionPartyGeoZoneVector.ID
+
+Ref: TransactionParty.ID > Transaction.FromID
+Ref: TransactionParty.ID > Transaction.ToID
+
+Ref: TransactionParty.ID > PartyAffiliates.FromID
+Ref: TransactionParty.ID > PartyAffiliates.ToID
